@@ -31,13 +31,13 @@ void* routine(void *arg)
     while (data->meals_nbr < 1500000) 
     {
         pthread_mutex_lock(&data->mutex);
-        printf("Philo %d is taking right fork %d\n", data->ph->n, data->ph->fork_right);
-        printf("Philo %d is taking left fork %d\n", data->ph->n, data->ph->fork_left);
-        printf("Philo %d is eating\n", data->ph->n);
+        // printf("Philo %d is taking right fork %d\n", data->ph->n, data->ph->fork_right);
+        // printf("Philo %d is taking left fork %d\n", data->ph->n, data->ph->fork_left);
+        // printf("Philo %d is eating\n", data->ph->n);
         data->meals_nbr++;
         usleep(2000);
-        printf("Philo %d is dropping right fork %d\n", data->ph->n, data->ph->fork_right);
-        printf("Philo %d is dropping left fork %d\n", data->ph->n, data->ph->fork_left);
+        // printf("Philo %d is dropping right fork %d\n", data->ph->n, data->ph->fork_right);
+        // printf("Philo %d is dropping left fork %d\n", data->ph->n, data->ph->fork_left);
         pthread_mutex_unlock(&data->mutex);
         printf("Philo %d is sleeping\n", data->ph->n);
         usleep(2000);
@@ -48,21 +48,30 @@ void* routine(void *arg)
 int start_philo(t_data *data)
 {
     pthread_t th[data->ph_nbr];
+    t_philo p;
     int i;
 
     data->mails = 0;
     data->lock = 0;
     data->death = 0;
     i = 0;
-    pthread_mutex_init(&data->mutex, NULL);
-    pthread_mutex_init(&data->mutex_fork, NULL);
 
-    // Create threads
-    data->ph = malloc(sizeof(t_philo));
-    data->forks = malloc(sizeof(int) * data->ph_nbr);
+    p.data->mutex_forks = malloc(sizeof(pthread_mutex_t) * data->ph_nbr);
     while (i < data->ph_nbr)
     {
-        data->forks[i] = i;
+        if (pthread_mutex_init(&data->mutex_forks[i], NULL) != 0)
+        {
+            perror("Mutex initialization failed");
+            // Clean up already initialized mutexes
+            while (i > 0)
+            {
+                i--;
+                pthread_mutex_destroy(&data->mutex_forks[i]);
+            }
+            free(data->mutex_forks);
+            free(data);
+            return (1); // Handle initialization failure
+        }
         i++;
     }
     printf("ici ?\n");
@@ -126,6 +135,7 @@ int main(int ac, char **av)
     printf("%d\n", data.starving_time);
     printf("%d\n", data.eating_time);
     printf("%d\n", data.sleeping_time);
+    //ft_usleep(data.sleeping_time);
     printf("%d\n", data.meals_nbr);
     start_philo(&data);
     return (0);
