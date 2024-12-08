@@ -47,9 +47,11 @@ typedef struct s_test
     int sleeping_time;
     int meals_nbr;
     int death;
+    int check;
     // int fork_left;
     // int fork_right;
     // t_data *data;
+    pthread_mutex_t *mutex_death;
     pthread_mutex_t *mutex_forks;
 
 } t_test;
@@ -57,15 +59,19 @@ typedef struct s_test
 typedef struct s_philo
 {
     int n;
+    int death_p;
     int fork_left;
     int fork_right;
+    long int t_last_meal;
     t_test *data;
-    pthread_mutex_t mutex_print;
+    //pthread_t th;
 
 } t_philo;
 
 
 int	ft_usleep(long int time);
 int	ft_atoi(const char *str);
+long int	time_now(void);
+int create_philo(t_philo **philo, t_test *test);
 
 #endif
