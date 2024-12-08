@@ -55,13 +55,13 @@ int main(int ac, char **av)
         }
         i++;
     }
-	i = 0;
+	//i = 0;
 	create_philo(philo, &test);
-	while (i > 0)
-	{
-		i--;
-		pthread_mutex_destroy(&test.mutex_forks[i]);
-	}
-    pthread_mutex_destroy(test.mutex_forks);
-	pthread_mutex_destroy(test.mutex_death);
+	// while (i > 0)
+	// {
+	// 	i--;
+	// 	pthread_mutex_destroy(&test.mutex_forks[i]);
+	// }
+    // pthread_mutex_destroy(test.mutex_forks);
+	// pthread_mutex_destroy(test.mutex_death);
 }
