@@ -7,18 +7,19 @@ void	eat(t_philo *p, pthread_mutex_t *left_fork, pthread_mutex_t *right_fork)
 	printf("%d is taking fork\n", p->n);
     printf("%d is taking fork\n", p->n);
 	printf("%d is eating\n", p->n);
-    pthread_mutex_lock(p->data->mutex_death);
-    if (p->data->death == 1)
-    {
-        pthread_mutex_unlock(p->data->mutex_death);
-        pthread_mutex_unlock(right_fork);
-        pthread_mutex_unlock(left_fork);
-        return;
-    }
-    pthread_mutex_unlock(p->data->mutex_death);
+    // pthread_mutex_lock(p->data->mutex_death);
+    // if (p->data->death == 1)
+    // {
+    //     pthread_mutex_unlock(p->data->mutex_death);
+    //     pthread_mutex_unlock(right_fork);
+    //     pthread_mutex_unlock(left_fork);
+    //     return;
+    // }
+    // pthread_mutex_unlock(p->data->mutex_death);
     p->t_last_meal = time_now();
 	ft_usleep(p->data->eating_time);
 	pthread_mutex_unlock(right_fork);
+    printf("%d dropped fork\n", p->n);
 	pthread_mutex_unlock(left_fork);
 }
 
@@ -59,21 +60,29 @@ void    *routine(void *arg)
     p->t_last_meal = time_now();
 	while (p->data->check != 1)
 		continue ;
-    if (p->n % 2 == 0)
-	    ft_usleep(100);
 	p->death_p = 0;
     pthread_mutex_t *left_fork = &p->data->mutex_forks[p->n];
     pthread_mutex_t *right_fork = &p->data->mutex_forks[(p->n + 1) % p->data->ph_nbr];
+    if (p->n % 2 == 0)
+	    ft_usleep(150);
     //printf("%d\n", p->data->starving_time);
 	while (1)
 	{
-        //pthread_mutex_lock(p->data->mutex_death);
+        pthread_mutex_lock(p->data->mutex_death);
 		if (p->data->death == 1)
 			break ;
-        //pthread_mutex_unlock(p->data->mutex_death);
+        pthread_mutex_unlock(p->data->mutex_death);
 		eat(p, left_fork, right_fork);
+        pthread_mutex_lock(p->data->mutex_death);
+		if (p->data->death == 1)
+			break ;
+        pthread_mutex_unlock(p->data->mutex_death);
 		printf("%d is sleeping\n", p->n);
 		ft_usleep(p->data->sleeping_time);
+        pthread_mutex_lock(p->data->mutex_death);
+		if (p->data->death == 1)
+			break ;
+        pthread_mutex_unlock(p->data->mutex_death);
         printf("%d is thinking\n", p->n);
 	}
     return NULL;

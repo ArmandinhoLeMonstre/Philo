@@ -52,6 +52,7 @@ typedef struct s_test
     // int fork_right;
     // t_data *data;
     pthread_mutex_t *mutex_death;
+    pthread_mutex_t *mutex_voir;
     pthread_mutex_t *mutex_forks;
 
 } t_test;
