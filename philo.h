@@ -6,7 +6,7 @@
 /*   By: armitite <armitite@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/06 08:59:01 by armitite          #+#    #+#             */
-/*   Updated: 2024/12/07 21:04:13 by armitite         ###   ########.fr       */
+/*   Updated: 2024/12/09 17:14:56 by armitite         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ typedef struct s_test
     // int fork_right;
     // t_data *data;
     pthread_mutex_t *mutex_death;
-    pthread_mutex_t *mutex_voir;
+    pthread_mutex_t *mutex_print;
     pthread_mutex_t *mutex_forks;
 
 } t_test;
@@ -63,6 +63,7 @@ typedef struct s_philo
     int death_p;
     int fork_left;
     int fork_right;
+    long int time;
     long int t_last_meal;
     t_test *data;
     //pthread_t th;
