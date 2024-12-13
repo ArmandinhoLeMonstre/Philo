@@ -6,7 +6,7 @@
 /*   By: armitite <armitite@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/06 08:59:01 by armitite          #+#    #+#             */
-/*   Updated: 2024/12/09 17:14:56 by armitite         ###   ########.fr       */
+/*   Updated: 2024/12/09 18:21:49 by armitite         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,6 @@ typedef struct s_test
     int meals_nbr;
     int death;
     int check;
-    // int fork_left;
-    // int fork_right;
-    // t_data *data;
     pthread_mutex_t *mutex_death;
     pthread_mutex_t *mutex_print;
     pthread_mutex_t *mutex_forks;

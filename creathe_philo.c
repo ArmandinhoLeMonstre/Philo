@@ -4,18 +4,18 @@ void	eat(t_philo *p, pthread_mutex_t *left_fork, pthread_mutex_t *right_fork)
 {
 	pthread_mutex_lock(right_fork);
 	pthread_mutex_lock(left_fork);
+    pthread_mutex_lock(p->data->mutex_death);
+    if (p->data->death == 1)
+    {
+        pthread_mutex_unlock(p->data->mutex_death);
+        pthread_mutex_unlock(right_fork);
+        pthread_mutex_unlock(left_fork);
+        return;
+    }
+    pthread_mutex_unlock(p->data->mutex_death);
 	printf("%ld %d is taking fork\n", time_now() - p->time, p->n);
     printf("%ld %d is taking fork\n", time_now() - p->time, p->n);
 	printf("%ld %d is eating\n", time_now() - p->time, p->n);
-    // pthread_mutex_lock(p->data->mutex_death);
-    // if (p->data->death == 1)
-    // {
-    //     pthread_mutex_unlock(p->data->mutex_death);
-    //     pthread_mutex_unlock(right_fork);
-    //     pthread_mutex_unlock(left_fork);
-    //     return;
-    // }
-    // pthread_mutex_unlock(p->data->mutex_death);
     p->t_last_meal = time_now();
 	ft_usleep(p->data->eating_time);
 	pthread_mutex_unlock(right_fork);
@@ -43,7 +43,9 @@ void    *monitoring(void *arg)
             {
                 //printf("ici ?");
                 data->death = 1;
+                //pthread_mutex_lock(p[i]->data->mutex_print);
                 printf("%ld %d is dead\n", (time_now() - p[i]->time), p[i]->n);
+                //pthread_mutex_unlock(p[i]->data->mutex_print);
                 pthread_mutex_unlock(p[i]->data->mutex_death);
                 return NULL;
                 //exit(1);
@@ -63,7 +65,7 @@ void    *routine(void *arg)
 		continue ;
 	p->death_p = 0;
     pthread_mutex_t *left_fork = &p->data->mutex_forks[p->n];
-    pthread_mutex_t *right_fork = &p->data->mutex_forks[(p->n + 1) % p->data->ph_nbr];
+    pthread_mutex_t *right_fork = &p->data->mutex_forks[(p->n % p->data->ph_nbr) + 1];
     p->time = time_now();
     if (p->n % 2 == 0)
 	    ft_usleep(150);
@@ -74,6 +76,7 @@ void    *routine(void *arg)
 		if (p->data->death == 1)
         {
             pthread_mutex_unlock(p->data->mutex_death);
+            printf("ce death ? : %d\n", p->n);
 			break ;
         }
         pthread_mutex_unlock(p->data->mutex_death);
@@ -107,7 +110,8 @@ int create_philo(t_philo **philo, t_test *test)
     pthread_t monitor;
     for (i = 0; i < test->ph_nbr; i++) 
     {
-        test->n = i;
+        //test->n = i;
+        
         if (pthread_create(th + i, NULL, &routine, (void *)philo[i]) != 0) {
             perror("Failed to create thread");
             return 1;
