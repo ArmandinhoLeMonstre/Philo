@@ -12,10 +12,35 @@ void	eat(t_philo *p, pthread_mutex_t *left_fork, pthread_mutex_t *right_fork)
         pthread_mutex_unlock(left_fork);
         return;
     }
+    if (p->data->meals_eaten == (p->data->meals_nbr * p->data->ph_nbr))
+    {
+        pthread_mutex_unlock(p->data->mutex_death);
+        pthread_mutex_unlock(right_fork);
+        pthread_mutex_unlock(left_fork);
+        return ;
+    }
     pthread_mutex_unlock(p->data->mutex_death);
 	printf("%ld %d is taking fork\n", time_now() - p->time, p->n);
     printf("%ld %d is taking fork\n", time_now() - p->time, p->n);
 	printf("%ld %d is eating\n", time_now() - p->time, p->n);
+    pthread_mutex_lock(p->data->mutex_meals);
+    if (p->data->meals_eaten == (p->data->meals_nbr * p->data->ph_nbr))
+    {
+        pthread_mutex_unlock(p->data->mutex_meals);
+        pthread_mutex_unlock(right_fork);
+        pthread_mutex_unlock(left_fork);
+        return ;
+    }
+    if (p->data->meals_nbr != -1)
+        p->data->meals_eaten++;
+    if (p->data->meals_eaten == (p->data->meals_nbr * p->data->ph_nbr))
+    {
+        pthread_mutex_unlock(p->data->mutex_meals);
+        pthread_mutex_unlock(right_fork);
+        pthread_mutex_unlock(left_fork);
+        return ;
+    }
+    pthread_mutex_unlock(p->data->mutex_meals);
     p->t_last_meal = time_now();
 	ft_usleep(p->data->eating_time);
 	pthread_mutex_unlock(right_fork);
@@ -38,19 +63,21 @@ void    *monitoring(void *arg)
         i = 0;
         while (i < data->ph_nbr)
         {
-            pthread_mutex_lock(p[i]->data->mutex_death);
-            if ((time_now() - p[i]->t_last_meal) > p[i]->data->starving_time)
+            pthread_mutex_lock(data->mutex_death);
+            if ((time_now() - p[i]->t_last_meal) > data->starving_time)
             {
-                //printf("ici ?");
                 data->death = 1;
-                //pthread_mutex_lock(p[i]->data->mutex_print);
                 printf("%ld %d is dead\n", (time_now() - p[i]->time), p[i]->n);
-                //pthread_mutex_unlock(p[i]->data->mutex_print);
-                pthread_mutex_unlock(p[i]->data->mutex_death);
+                pthread_mutex_unlock(data->mutex_death);
                 return NULL;
-                //exit(1);
             }
-            pthread_mutex_unlock(p[i]->data->mutex_death);
+            if (data->meals_eaten == (data->meals_nbr * data->ph_nbr))
+            {
+                printf("%d meals have been eaten\n", data->meals_eaten);
+                pthread_mutex_unlock(data->mutex_death);
+                return NULL;
+            }
+            pthread_mutex_unlock(data->mutex_death);
             i++;
         }
     }
@@ -76,7 +103,11 @@ void    *routine(void *arg)
 		if (p->data->death == 1)
         {
             pthread_mutex_unlock(p->data->mutex_death);
-            printf("ce death ? : %d\n", p->n);
+			break ;
+        }
+		if (p->data->meals_eaten == (p->data->meals_nbr * p->data->ph_nbr))
+        {
+            pthread_mutex_unlock(p->data->mutex_death);
 			break ;
         }
         pthread_mutex_unlock(p->data->mutex_death);
@@ -87,11 +118,21 @@ void    *routine(void *arg)
             pthread_mutex_unlock(p->data->mutex_death);
 			break ;
         }
+        if (p->data->meals_eaten == (p->data->meals_nbr * p->data->ph_nbr))
+        {
+            pthread_mutex_unlock(p->data->mutex_death);
+			break ;
+        }
         pthread_mutex_unlock(p->data->mutex_death);
 		printf("%ld %d is sleeping\n", time_now() - p->time, p->n);
 		ft_usleep(p->data->sleeping_time);
         pthread_mutex_lock(p->data->mutex_death);
 		if (p->data->death == 1)
+        {
+            pthread_mutex_unlock(p->data->mutex_death);
+			break ;
+        }
+        if (p->data->meals_eaten == (p->data->meals_nbr * p->data->ph_nbr))
         {
             pthread_mutex_unlock(p->data->mutex_death);
 			break ;

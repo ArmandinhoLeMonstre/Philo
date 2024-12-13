@@ -25,6 +25,7 @@ int main(int ac, char **av)
 	test.check = 0;
 	test.mutex_death = malloc(sizeof(pthread_mutex_t) * 1);
     test.mutex_print = malloc(sizeof(pthread_mutex_t) * 1);
+    test.mutex_meals = malloc(sizeof(pthread_mutex_t) * 1);
 	if (pthread_mutex_init(test.mutex_death, (void *)&test) != 0)
         exit(1);
     philo = malloc(sizeof(t_philo *) * test.ph_nbr);
